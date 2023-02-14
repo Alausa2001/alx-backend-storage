@@ -1,5 +1,5 @@
 // delete a docs in school where name = Holberton school
-db.school.delete(
+db.school.remove(
           {name: "Holberton school"},
           {multi: true}
 )
