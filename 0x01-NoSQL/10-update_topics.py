@@ -17,5 +17,5 @@ def update_topics(mongo_collection, name, topics):
     document based on the name
     """
     query = {"name": name}
-    update = {'topics': topics}
+    update = {'$set': {'topics': topics}}
     mongo_collection.update_one(query, update)
