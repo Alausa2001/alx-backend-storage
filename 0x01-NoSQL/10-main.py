@@ -13,7 +13,7 @@ if __name__ == "__main__":
     for school in schools:
         print("[{}] {} {}".format(school.get('_id'), school.get('name'), school.get('topics', "")))
 
-    update_topics(school_collection, "Holberton school", ["iOS"])
+    update_topics(school_collection, "UCSF", ["iOS"])
 
     schools = list_all(school_collection)
     for school in schools:
