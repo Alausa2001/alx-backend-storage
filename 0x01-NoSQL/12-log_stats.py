@@ -41,7 +41,7 @@ def logs():
         elif doc.get('method') == "DELETE":
             delete += 1
     print("{} logs".format(count_all))
-    print("methods:")
+    print("Methods:")
     print("\tmethod GET: {}".format(len(get)))
     print("\tmethod POST: {}".format(post))
     print("\tmethod PUT: {}".format(put))
