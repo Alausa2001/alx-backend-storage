@@ -20,8 +20,8 @@ class Cache:
     """cache class"""
     def __init__(self):
         """instance intialization"""
-        self.__redis = redis.Redis()
-        self.__redis.flushdb()
+        self._redis = redis.Redis()
+        self._redis.flushdb()
 
     def store(self, data: Union[str, bytes, int, float]) -> str:
         """
@@ -29,5 +29,5 @@ class Cache:
         store the data argument into redis database
         """
         self.key = str(uuid4())
-        self.__redis.set(self.key, data)
+        self._redis.set(self.key, data)
         return self.key
