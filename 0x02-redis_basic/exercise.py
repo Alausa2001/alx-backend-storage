@@ -14,6 +14,20 @@ str, bytes, int or float.
 import redis
 from typing import Union, Any, Callable
 from uuid import uuid4
+from functools import wraps
+
+
+def count_calls(method: Callable) -> Callable:
+    """count the no of times a method is called"""
+    key = method.__qualname__
+
+    @wraps(method)
+    def wrapper(*args, **kwargs):
+        """wrapper function"""
+        self = args[0]
+        self._redis.incr(key, amount=1)
+        return method(*args, **kwargs)
+    return wrapper
 
 
 class Cache:
@@ -23,6 +37,7 @@ class Cache:
         self._redis = redis.Redis()
         self._redis.flushdb(True)
 
+    @count_calls
     def store(self, data: Union[str, bytes, int, float]) -> str:
         """
         generates a rndom key and then uses this key to
