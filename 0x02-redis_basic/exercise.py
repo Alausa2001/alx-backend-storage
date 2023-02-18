@@ -22,18 +22,16 @@ def call_history(method: Callable) -> Callable:
     decorator to store the history of inputs and outputs
     for a particular function
     """
-    input_key = method.__qualname__ + ":inputs"
-    output_key = method.__qualname__ + ":outputs"
-
     @wraps(method)
-    def wrapper(*args, **kwargs):
+    def wrapper_call(self, *args, **kwargs):
         """wrapperfunc"""
-        self = args[0]
+        input_key = method.__qualname__ + ":inputs"
+        output_key = method.__qualname__ + ":outputs"
         self._redis.rpush(input_key, str(args))
-        out = method(*args, **kwargs)
+        out = method(self, *args, **kwargs)
         self._redis.rpush(output_key, str(out))
         return out
-    return wrapper
+    return wrapper_call
 
 
 def count_calls(method: Callable) -> Callable:
@@ -41,12 +39,11 @@ def count_calls(method: Callable) -> Callable:
     key = method.__qualname__
 
     @wraps(method)
-    def wrapper(*args, **kwargs):
+    def wrapper_count(self, *args, **kwargs):
         """wrapper function"""
-        self = args[0]
         self._redis.incr(key, amount=1)
-        return method(*args, **kwargs)
-    return wrapper
+        return method(self, *args, **kwargs)
+    return wrapper_count
 
 
 class Cache:
@@ -63,9 +60,9 @@ class Cache:
         generates a rndom key and then uses this key to
         store the data argument into redis database
         """
-        self.key = str(uuid4())
-        self._redis.set(self.key, data)
-        return self.key
+        key = str(uuid4())
+        self._redis.set(key, data)
+        return key
 
     def get(self, key: str, fn: Callable = None) -> Any:
         """
