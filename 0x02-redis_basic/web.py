@@ -24,7 +24,7 @@ redi = redis.Redis()
 
 
 def count_url_access(method):
-
+    """counts the no of times a url is accessed"""
     @wraps(method)
     def count(url):
         url_key = url
