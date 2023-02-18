@@ -83,3 +83,27 @@ class Cache:
         """retrun int"""
         value = self._redis.get(key)
         return int.from_bytes(value)
+
+
+def replay(fn: Callable):
+    """display the history of calls of a particular function."""
+    r = redis.Redis()
+    func_name = fn.__qualname__
+    c = r.get(func_name)
+    try:
+        c = int(c.decode("utf-8"))
+    except Exception:
+        c = 0
+    print("{} was called {} times:".format(func_name, c))
+    inputs = r.lrange("{}:inputs".format(func_name), 0, -1)
+    outputs = r.lrange("{}:outputs".format(func_name), 0, -1)
+    for input, output in zip(inputs, outputs):
+        try:
+            input = input.decode("utf-8")
+        except Exception:
+            input = ""
+        try:
+            output = output.decode("utf-8")
+        except Exception:
+            output = ""
+        print("{}(*{}) -> {}".format(func_name, input, output))
