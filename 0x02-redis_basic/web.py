@@ -31,9 +31,10 @@ def count_url_access(method):
         cached_data = redis_cache.get(url_key)
         if cached_data:
             return cached_data.decode("utf-8")
+
         count_key = 'count:{}'.format(url)
-        redis_cache.incr(count_key, amount=1)
         html = method(url)
+        redis_cache.incr(count_key)
         redis_cache.set(url_key, html)
         redis_cache.expire(url_key, 10)
         return html
