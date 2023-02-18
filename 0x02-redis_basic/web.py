@@ -1,36 +1,47 @@
 #!/usr/bin/env python3
 """
-web cache and tracker
-"""
-import requests
-import redis
-from functools import wraps
+In this tasks, we will implement a get_page function
+(prototype: def get_page(url: str) -> str:).
+The core of the function is very simple.
+It uses the requests module to obtain
+the HTML content of a particular URL and returns it.
 
-store = redis.Redis()
+Inside get_page track how many times a particular URL was
+accessed in the key "count:{url}" and cache the
+result with an expiration time of 10 seconds.
+
+Tip: Use http://slowwly.robertomurray.co.uk to
+simulate a slow response and test your caching.
+
+Bonus: implement this use case with decorators.
+"""
+from functools import wraps
+import requests as req
+import redis
+
+
+redis_cache = redis.Redis()
 
 
 def count_url_access(method):
-    """ Decorator counting how many times
-    a URL is accessed """
+    """counts the no of times a url is accessed"""
     @wraps(method)
-    def wrapper(url):
-        cached_key = "cached:" + url
-        cached_data = store.get(cached_key)
+    def count(url):
+        url_key = url
+        cached_data = redis_cache.get(url_key)
         if cached_data:
             return cached_data.decode("utf-8")
 
-        count_key = "count:" + url
+        count_key = 'count:{}'.format(url)
         html = method(url)
-
-        store.incr(count_key)
-        store.set(cached_key, html)
-        store.expire(cached_key, 10)
+        redis_cache.incr(count_key)
+        redis_cache.setex(url_key, 10, html)
         return html
-    return wrapper
+    return count
 
 
 @count_url_access
 def get_page(url: str) -> str:
-    """ Returns HTML content of a url """
-    res = requests.get(url)
-    return res.text
+    """requests a url and returns the HTML content"""
+    html = req.get(url)
+    return html.text
