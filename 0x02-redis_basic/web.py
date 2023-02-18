@@ -35,8 +35,7 @@ def count_url_access(method):
         count_key = 'count:{}'.format(url)
         html = method(url)
         redis_cache.incr(count_key)
-        redis_cache.set(url_key, html)
-        redis_cache.expire(url_key, 10)
+        redis_cache.setex(url_key, 10, html)
         return html
     return count
 
@@ -46,3 +45,4 @@ def get_page(url: str) -> str:
     """requests a url and returns the HTML content"""
     html = req.get(url)
     return html.text
+get_page('http://google.com')
