@@ -20,7 +20,7 @@ import requests as req
 import redis
 
 
-redi = redis.Redis()
+redis_cache = redis.Redis()
 
 
 def count_url_access(method):
@@ -28,11 +28,14 @@ def count_url_access(method):
     @wraps(method)
     def count(url):
         url_key = url
+        cached_data = redis_cache.get(url_key)
+        if cached_data:
+            return cached_data.decode("utf-8")
         count_key = 'count:{}'.format(url)
-        redi.incr(count_key, amount=1)
+        redis_cache.incr(count_key, amount=1)
         html = method(url)
-        redi.set(url_key, html)
-        redi.expire(url, 10)
+        redis_cache.set(url_key, html)
+        redis_cache.expire(url_key, 10)
         return html
     return count
 
